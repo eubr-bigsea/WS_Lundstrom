@@ -437,18 +437,19 @@ public class Utilities {
     * @param lundstromOutput the output of lundstrom run with -s option
     * @return
     */
-   public String[] getAllStages(String lundstromOutput) {
-      JSONParser parser = new JSONParser();
-      JSONObject json = (JSONObject) parser.parse(lundstromOutput);
-
-      int num_stages = json.stages.length;
-
-      String[] stages = new String[num_stages];
-      for (int i = 0; i < num_stages; i++)
-        stages[i] = json.stages[i].id;
-
-      return stages;
-   }
+  //  public String[] getAllStages(String lundstromOutput) {
+  //     JSONParser parser = new JSONParser();
+  //     JSONObject json = (JSONObject) parser.parse(lundstromOutput);
+   //
+  //     JSONArray stgs = (JSONArray) json.get("stages");
+  //     int num_stages = stgs.length;
+   //
+  //     String[] stages = new String[num_stages];
+  //     for (int i = 0; i < num_stages; i++)
+  //       stages[i] = stgs.get(i).get("id");
+   //
+  //     return stages;
+  //  }
 
    /**
     * From the full lundstromOutput extracts the total time (3rd row, 3rd column)
@@ -457,9 +458,17 @@ public class Utilities {
     */
     public long getTotalExecutionTime(String lundstromOutput) {
       /** @todo improve json parsing to single point */
-      JSONParser parser = new JSONParser();
-      JSONObject json = (JSONObject) parser.parse(lundstromOutput);
-      return (long)Math.floor(Double.valueOf(json.real));
+      try
+      {
+        JSONParser parser = new JSONParser();
+        JSONObject json = (JSONObject) parser.parse(lundstromOutput);
+        return (long)Math.floor(Double.valueOf((String)json.get("real")));
+      }
+      catch (ParseException pe)
+      {
+        System.out.println(pe);
+        return 0;
+      }
     }
   //  public long getTotalExecutionTime(String lundstromOutput) {
   //     return (long)Math.floor(Double.valueOf(extract(lundstromOutput.split("\n")[0], 3, "\t")));
@@ -471,16 +480,30 @@ public class Utilities {
     * @param stage
     * @return
     */
-    public String[] getStageWaitTime(String lundstromOutput, String stage) {
-       JSONParser parser = new JSONParser();
-       JSONObject json = (JSONObject) parser.parse(lundstromOutput);
+    public long getStageWaitTime(String lundstromOutput, String stage) {
+       try
+       {
+         JSONParser parser = new JSONParser();
+         JSONObject json = (JSONObject) parser.parse(lundstromOutput);
+         JSONObject st;
+         JSONArray stgs = (JSONArray) json.get("stages");
+         int num_stages = stgs.size();
+         long val = 0;
 
-       int num_stages = json.stages.length;
+         String[] stages = new String[num_stages];
+         for (int i = 0; i < num_stages; i++) {
+           st = (JSONObject) stgs.get(i);
+           if (stage.equals(st.get("id")))
+             val = (long)Math.floor(Double.valueOf((String)st.get("time")));
+         }
 
-       String[] stages = new String[num_stages];
-       for (int i = 0; i < num_stages; i++)
-         if (stage.equals(json.stages[i].id))
-           return (long)Math.floor(Double.valueOf(json.stages[i].time));
+         return val;
+       }
+       catch (ParseException pe)
+       {
+         System.out.println(pe);
+         return 0;
+       }
     }
   //  public long getStageWaitTime(String lundstromOutput, String stage) {
   //     String[] stageOutput = filterLines(lundstromOutput.split("\n"), stage);
@@ -576,7 +599,7 @@ public class Utilities {
          }
       });
       if (directories.length > 0) {
-        String ramGB = directories[0].getPath().replace(nNodes+"_"+nCores+"_", "").replace("_"+datasetSize);
+        String ramGB = directories[0].getPath().replace(nNodes+"_"+nCores+"_", "").replace("_"+datasetSize, "");
         return BuildLUA(resultsPath, nNodes, nCores, ramGB, datasetSize, appId);
         //  String path = directories[0].getPath().concat("/").concat(query).concat("/logs/");
         //  String luaFileName = getFirstFile(getFirstFolder(path));
@@ -816,16 +839,28 @@ public class Utilities {
      * @return
      */
     public String[] getAllStages(String lundstromOutput) {
-       JSONParser parser = new JSONParser();
-       JSONObject json = (JSONObject) parser.parse(lundstromOutput);
+      String[] stages = new String[0];
+      try {
+        JSONParser parser = new JSONParser();
+        JSONObject json = (JSONObject) parser.parse(lundstromOutput);
+        JSONObject st;
 
-       int num_stages = json.stages.length;
+        JSONArray stgs = (JSONArray) json.get("stages");
+        int num_stages = stgs.size();
 
-       String[] stages = new String[num_stages];
-       for (int i = 0; i < num_stages; i++)
-         stages[i] = json.stages[i].id;
+        stages = new String[num_stages];
+        for (int i = 0; i < num_stages; i++) {
+          st = (JSONObject) stgs.get(i);
+          stages[i] = (String) st.get("id");
+        }
 
-       return stages;
+        return stages;
+      }
+      catch (ParseException pe)
+      {
+        System.out.println(pe);
+        return stages;
+      }
     }
   //  public String[] getAllStages(String lundstromOutput) {
   //     String[] lines = lundstromOutput.split("\n");
