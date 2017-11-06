@@ -27,6 +27,12 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
+
 public class Utilities {
 
    public ResultSet query(String dbName, Connection connect, String sqlStatement)
@@ -427,13 +433,37 @@ public class Utilities {
    }
 
    /**
+    * Retrieve all the stages ids from the lundstrom output
+    * @param lundstromOutput the output of lundstrom run with -s option
+    * @return
+    */
+   public String[] getAllStages(String lundstromOutput) {
+      JSONParser parser = new JSONParser();
+      JSONObject json = (JSONObject) parser.parse(lundstromOutput);
+
+      int num_stages = json.stages.length;
+
+      String[] stages = new String[num_stages];
+      for (int i = 0; i < num_stages; i++)
+        stages[i] = json.stages[i].id;
+
+      return stages;
+   }
+
+   /**
     * From the full lundstromOutput extracts the total time (3rd row, 3rd column)
     * @param lundstromOutput
     * @return
     */
-   public long getTotalExecutionTime(String lundstromOutput) {
-      return (long)Math.floor(Double.valueOf(extract(lundstromOutput.split("\n")[0], 3, "\t")));
-   }
+    public long getTotalExecutionTime(String lundstromOutput) {
+      /** @todo improve json parsing to single point */
+      JSONParser parser = new JSONParser();
+      JSONObject json = (JSONObject) parser.parse(lundstromOutput);
+      return (long)Math.floor(Double.valueOf(json.real));
+    }
+  //  public long getTotalExecutionTime(String lundstromOutput) {
+  //     return (long)Math.floor(Double.valueOf(extract(lundstromOutput.split("\n")[0], 3, "\t")));
+  //  }
 
    /**
     * From the full lundstromOutput extracts the stage wait time (2nd row, 4th column of the stage-relative rows)
@@ -441,10 +471,21 @@ public class Utilities {
     * @param stage
     * @return
     */
-   public long getStageWaitTime(String lundstromOutput, String stage) {
-      String[] stageOutput = filterLines(lundstromOutput.split("\n"), stage);
-      return (long)Math.floor(Double.valueOf(extract(stageOutput[1], 4, "\t")));
-   }
+    public String[] getStageWaitTime(String lundstromOutput, String stage) {
+       JSONParser parser = new JSONParser();
+       JSONObject json = (JSONObject) parser.parse(lundstromOutput);
+
+       int num_stages = json.stages.length;
+
+       String[] stages = new String[num_stages];
+       for (int i = 0; i < num_stages; i++)
+         if (stage.equals(json.stages[i].id))
+           return (long)Math.floor(Double.valueOf(json.stages[i].time));
+    }
+  //  public long getStageWaitTime(String lundstromOutput, String stage) {
+  //     String[] stageOutput = filterLines(lundstromOutput.split("\n"), stage);
+  //     return (long)Math.floor(Double.valueOf(extract(stageOutput[1], 4, "\t")));
+  //  }
 
    public int extract(String string, int position)
    {
@@ -769,19 +810,31 @@ public class Utilities {
 
 
 
-   /**
-    * Retrieve all the stages ids from the lundstrom output
-    * @param lundstromOutput the output of lundstrom run with -s option
-    * @return
-    */
-   public String[] getAllStages(String lundstromOutput) {
-      String[] lines = lundstromOutput.split("\n");
-      int num_stages = (lines.length / 4) - 1;
+    /**
+     * Retrieve all the stages ids from the lundstrom output
+     * @param lundstromOutput the output of lundstrom run with -s option
+     * @return
+     */
+    public String[] getAllStages(String lundstromOutput) {
+       JSONParser parser = new JSONParser();
+       JSONObject json = (JSONObject) parser.parse(lundstromOutput);
 
-      String[] stages = new String[num_stages];
-      for (int i = 0; i < num_stages; i++)
-         stages[i] = extract(lines[i*4 + 4], 9, "\t");
+       int num_stages = json.stages.length;
 
-      return stages;
-   }
+       String[] stages = new String[num_stages];
+       for (int i = 0; i < num_stages; i++)
+         stages[i] = json.stages[i].id;
+
+       return stages;
+    }
+  //  public String[] getAllStages(String lundstromOutput) {
+  //     String[] lines = lundstromOutput.split("\n");
+  //     int num_stages = (lines.length / 4) - 1;
+   //
+  //     String[] stages = new String[num_stages];
+  //     for (int i = 0; i < num_stages; i++)
+  //        stages[i] = extract(lines[i*4 + 4], 9, "\t");
+   //
+  //     return stages;
+  //  }
 }
