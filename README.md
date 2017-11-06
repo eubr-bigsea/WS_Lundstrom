@@ -1,1 +1,2 @@
-# WS_DagSim
+# WS Lundstrom
+Run: mvn install
