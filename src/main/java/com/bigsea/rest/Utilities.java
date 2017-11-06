@@ -536,7 +536,7 @@ public class Utilities {
       });
       if (directories.length > 0) {
         String ramGB = directories[0].getPath().replace(nNodes+"_"+nCores+"_", "").replace("_"+datasetSize);
-        BuildLUA(resultsPath, nNodes, nCores, ramGB, datasetSize, appId)
+        return BuildLUA(resultsPath, nNodes, nCores, ramGB, datasetSize, appId);
         //  String path = directories[0].getPath().concat("/").concat(query).concat("/logs/");
         //  String luaFileName = getFirstFile(getFirstFolder(path));
         //  return luaFileName;
