@@ -48,7 +48,7 @@
 	</dependencies>
 
 	<build>
-		<finalName>bigsea</finalName>
+		<finalName>ws-lundstrom</finalName>
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
