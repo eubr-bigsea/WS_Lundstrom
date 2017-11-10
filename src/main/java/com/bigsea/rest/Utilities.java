@@ -602,7 +602,7 @@ public class Utilities {
       if (directories.length > 0) {
         String ramGB = directories[0].getPath().replace(nNodes+"_"+nCores+"_", "").replace("_"+datasetSize, "");
         String path = resultsPath.concat("/%NODES_%CORES_%RAM_%DATA/%QUERY/logs/");
-        return " -n "+ newNodes + " -c "+ newCores + " -r " + ramGB + " -d " + datasetSize + " -q " + appId + " -p spark -l "+path+" -s";
+        return " -n "+ nNodes + " -c "+ nCores + " -r " + ramGB + " -d " + datasetSize + " -q " + appId + " -p spark -l "+path+" -s";
         //  String path = directories[0].getPath().concat("/").concat(query).concat("/logs/");
         //  String luaFileName = getFirstFile(getFirstFolder(path));
         //  return luaFileName;
