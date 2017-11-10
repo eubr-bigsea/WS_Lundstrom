@@ -578,7 +578,7 @@ public class Utilities {
    // BuildLUA(resultsPath, newNodes, newCores, ramGB, datasetSize, appId)
    public String BuildLUA(String resultsPath, String newNodes, String newCores, String ramGB, String datasetSize, String appId)
    {
-      String path = resultsPath.concat("/").concat(newNodes).concat("_").concat(newCores).concat("_").concat(ramGB).concat("_").concat(datasetSize).concat("/").concat(appId).concat("/logs/");
+      String path = resultsPath.concat("/%NODES_%CORES_%RAM_%DATA/%QUERY/logs/");
       return " -n "+ newNodes + " -c "+ newCores + " -r " + ramGB + " -d " + datasetSize + " -q " + appId + " -p spark -l "+path+" -s";
    }
   //  public String BuildLUA(String resultsPath, String newNodes, String newCores, String ramGB, String datasetSize, String appId)
@@ -601,7 +601,7 @@ public class Utilities {
       });
       if (directories.length > 0) {
         String ramGB = directories[0].getPath().replace(nNodes+"_"+nCores+"_", "").replace("_"+datasetSize, "");
-        String path = directories[0].getPath().concat("/").concat(query).concat("/logs/");
+        String path = resultsPath.concat("/%NODES_%CORES_%RAM_%DATA/%QUERY/logs/");
         return " -n "+ newNodes + " -c "+ newCores + " -r " + ramGB + " -d " + datasetSize + " -q " + appId + " -p spark -l "+path+" -s";
         //  String path = directories[0].getPath().concat("/").concat(query).concat("/logs/");
         //  String luaFileName = getFirstFile(getFirstFolder(path));
