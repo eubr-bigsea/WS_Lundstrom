@@ -807,7 +807,7 @@ public class Utilities {
         for (int i = 0; i < num_stages; i++) {
           st = (JSONObject) stgs.get(i);
           if (stage.equals((String)st.get("id")))
-            t = (double)st.get("time")
+            t = (double)st.get("time");
             val = (long)Math.floor(t);
         }
 
@@ -831,7 +831,7 @@ public class Utilities {
      {
        JSONParser parser = new JSONParser();
        JSONObject json = (JSONObject) parser.parse(lundstromOutput);
-       String d = (String)json.get("real")
+       String d = (String)json.get("real");
        return (long)Math.floor(Double.parseDouble(d));
      }
      catch (ParseException pe)
