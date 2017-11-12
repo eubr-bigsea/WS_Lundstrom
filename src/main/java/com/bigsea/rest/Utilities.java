@@ -800,17 +800,18 @@ public class Utilities {
         JSONObject st;
         JSONArray stgs = (JSONArray) json.get("stages");
         int num_stages = stgs.size();
-        double val = 0;
-        String t = null;
+        long val = 0;
+        double t = null;
 
         String[] stages = new String[num_stages];
         for (int i = 0; i < num_stages; i++) {
           st = (JSONObject) stgs.get(i);
           if (stage.equals((String)st.get("id")))
-           val = Math.floor((double)st.get("time"));
+            t = (double)st.get("time")
+            val = (long)Math.floor(t);
         }
 
-        return (long)val;
+        return val;
       }
       catch (ParseException pe)
       {
@@ -830,7 +831,8 @@ public class Utilities {
      {
        JSONParser parser = new JSONParser();
        JSONObject json = (JSONObject) parser.parse(lundstromOutput);
-       return (long)Math.floor((double)json.get("real"));
+       double d = (double)json.get("real")
+       return (long)Math.floor(d);
      }
      catch (ParseException pe)
      {
