@@ -432,84 +432,6 @@ public class Utilities {
       return totalTime - stageWaitTime;
    }
 
-   /**
-    * Retrieve all the stages ids from the lundstrom output
-    * @param lundstromOutput the output of lundstrom run with -s option
-    * @return
-    */
-  //  public String[] getAllStages(String lundstromOutput) {
-  //     JSONParser parser = new JSONParser();
-  //     JSONObject json = (JSONObject) parser.parse(lundstromOutput);
-   //
-  //     JSONArray stgs = (JSONArray) json.get("stages");
-  //     int num_stages = stgs.length;
-   //
-  //     String[] stages = new String[num_stages];
-  //     for (int i = 0; i < num_stages; i++)
-  //       stages[i] = stgs.get(i).get("id");
-   //
-  //     return stages;
-  //  }
-
-   /**
-    * From the full lundstromOutput extracts the total time (3rd row, 3rd column)
-    * @param lundstromOutput
-    * @return
-    */
-    public long getTotalExecutionTime(String lundstromOutput) {
-      /** @todo improve json parsing to single point */
-      try
-      {
-        JSONParser parser = new JSONParser();
-        JSONObject json = (JSONObject) parser.parse(lundstromOutput);
-        return (long)Math.floor(Double.valueOf((String)json.get("real")));
-      }
-      catch (ParseException pe)
-      {
-        System.out.println(pe);
-        return 0;
-      }
-    }
-  //  public long getTotalExecutionTime(String lundstromOutput) {
-  //     return (long)Math.floor(Double.valueOf(extract(lundstromOutput.split("\n")[0], 3, "\t")));
-  //  }
-
-   /**
-    * From the full lundstromOutput extracts the stage wait time (2nd row, 4th column of the stage-relative rows)
-    * @param lundstromOutput
-    * @param stage
-    * @return
-    */
-    public long getStageWaitTime(String lundstromOutput, String stage) {
-       try
-       {
-         JSONParser parser = new JSONParser();
-         JSONObject json = (JSONObject) parser.parse(lundstromOutput);
-         JSONObject st;
-         JSONArray stgs = (JSONArray) json.get("stages");
-         int num_stages = stgs.size();
-         long val = 0;
-
-         String[] stages = new String[num_stages];
-         for (int i = 0; i < num_stages; i++) {
-           st = (JSONObject) stgs.get(i);
-           if (stage.equals(st.get("id")))
-             val = (long)Math.floor(Double.valueOf((String)st.get("time")));
-         }
-
-         return val;
-       }
-       catch (ParseException pe)
-       {
-         System.out.println(pe);
-         return 0;
-       }
-    }
-  //  public long getStageWaitTime(String lundstromOutput, String stage) {
-  //     String[] stageOutput = filterLines(lundstromOutput.split("\n"), stage);
-  //     return (long)Math.floor(Double.valueOf(extract(stageOutput[1], 4, "\t")));
-  //  }
-
    public int extract(String string, int position)
    {
       String mysubstring = "", savestring = "";
@@ -834,44 +756,87 @@ public class Utilities {
    }
 
 
+   /**
+    * Retrieve all the stages ids from the lundstrom output
+    * @param lundstromOutput the output of lundstrom run with -s option
+    * @return
+    */
+   public static String[] getAllStages(String lundstromOutput) {
+     String[] stages = new String[0];
+     try {
+       JSONParser parser = new JSONParser();
+       JSONObject json = (JSONObject) parser.parse(lundstromOutput);
+       JSONObject st;
 
-    /**
-     * Retrieve all the stages ids from the lundstrom output
-     * @param lundstromOutput the output of lundstrom run with -s option
-     * @return
-     */
-    public String[] getAllStages(String lundstromOutput) {
-      String[] stages = new String[0];
-      try {
+       JSONArray stgs = (JSONArray) json.get("stages");
+       int num_stages = stgs.size();
+
+       stages = new String[num_stages];
+       for (int i = 0; i < num_stages; i++) {
+         st = (JSONObject) stgs.get(i);
+         stages[i] = (String) st.get("id");
+       }
+
+       return stages;
+     }
+     catch (ParseException pe)
+     {
+       System.out.println(pe);
+       return stages;
+     }
+   }
+
+   /**
+    * From the full lundstromOutput extracts the stage wait time (2nd row, 4th column of the stage-relative rows)
+    * @param lundstromOutput
+    * @param stage
+    * @return
+    */
+   public static long getStageWaitTime(String lundstromOutput, String stage) {
+      try
+      {
         JSONParser parser = new JSONParser();
         JSONObject json = (JSONObject) parser.parse(lundstromOutput);
         JSONObject st;
-
         JSONArray stgs = (JSONArray) json.get("stages");
         int num_stages = stgs.size();
+        double val = 0;
+        String t = null;
 
-        stages = new String[num_stages];
+        String[] stages = new String[num_stages];
         for (int i = 0; i < num_stages; i++) {
           st = (JSONObject) stgs.get(i);
-          stages[i] = (String) st.get("id");
+          if (stage.equals((String)st.get("id")))
+           val = Math.floor((double)st.get("time"));
         }
 
-        return stages;
+        return (long)val;
       }
       catch (ParseException pe)
       {
         System.out.println(pe);
-        return stages;
+        return 0;
       }
-    }
-  //  public String[] getAllStages(String lundstromOutput) {
-  //     String[] lines = lundstromOutput.split("\n");
-  //     int num_stages = (lines.length / 4) - 1;
-   //
-  //     String[] stages = new String[num_stages];
-  //     for (int i = 0; i < num_stages; i++)
-  //        stages[i] = extract(lines[i*4 + 4], 9, "\t");
-   //
-  //     return stages;
-  //  }
+   }
+
+   /**
+   * From the full lundstromOutput extracts the total time (3rd row, 3rd column)
+   * @param lundstromOutput
+   * @return
+   */
+   public static long getTotalExecutionTime(String lundstromOutput) {
+     /** @todo improve json parsing to single point */
+     try
+     {
+       JSONParser parser = new JSONParser();
+       JSONObject json = (JSONObject) parser.parse(lundstromOutput);
+       return (long)Math.floor((double)json.get("real"));
+     }
+     catch (ParseException pe)
+     {
+       System.out.println(pe);
+       return 0;
+     }
+   }
+
 }
