@@ -806,9 +806,10 @@ public class Utilities {
         String[] stages = new String[num_stages];
         for (int i = 0; i < num_stages; i++) {
           st = (JSONObject) stgs.get(i);
-          if (stage.equals((String)st.get("id")))
+          if (stage.equals((String)st.get("id"))) {
             t = (String)st.get("time");
             val = (long)Math.floor(Double.parseDouble(t));
+          }
         }
 
         return val;
