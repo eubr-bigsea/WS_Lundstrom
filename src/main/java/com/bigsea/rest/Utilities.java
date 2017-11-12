@@ -801,7 +801,7 @@ public class Utilities {
         JSONArray stgs = (JSONArray) json.get("stages");
         int num_stages = stgs.size();
         long val = 0;
-        String t;
+        String t = "";
 
         String[] stages = new String[num_stages];
         for (int i = 0; i < num_stages; i++) {
