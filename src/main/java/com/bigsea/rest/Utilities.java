@@ -801,14 +801,14 @@ public class Utilities {
         JSONArray stgs = (JSONArray) json.get("stages");
         int num_stages = stgs.size();
         long val = 0;
-        double t = null;
+        String t;
 
         String[] stages = new String[num_stages];
         for (int i = 0; i < num_stages; i++) {
           st = (JSONObject) stgs.get(i);
           if (stage.equals((String)st.get("id")))
-            t = (double)st.get("time");
-            val = (long)Math.floor(t);
+            t = (String)st.get("time");
+            val = (long)Math.floor(Double.parseDouble(t));
         }
 
         return val;
