@@ -323,7 +323,7 @@ public class Ws extends Utilities {
     }
     catch (Exception e) {
       e.printStackTrace();
-      return Response.status(500).build();
+      return Response.status(500).entity(e.getMessage()).build();
     }
   }
 
