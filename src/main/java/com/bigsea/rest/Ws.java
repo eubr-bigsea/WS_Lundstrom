@@ -71,6 +71,11 @@ public class Ws extends Utilities {
     /* Find the folder */
     File f = new File(path);
 
+    String coresToPredict = String.valueOf(Integer.valueOf(nCores) * Integer.valueOf(nNodes));
+    String totalNcores = coresToPredict;
+    String newNodes = nNodes;
+    String newCores = nCores;
+
     /* If the folder doesn't exist, find the closest match among all the folders available */
     if (!f.exists())
     {
@@ -89,12 +94,11 @@ public class Ws extends Utilities {
       String reply = bestMatch(directories, nNodes, nCores, ramGB, datasetSize, appId);
 
       /* Update the number of cores and nodes to the the found folder */
-      nNodes = reply.substring(0, reply.indexOf(" "));
-      nCores = reply.substring(nNodes.length()+1, reply.length()-1);
+      newNodes = reply.substring(0, reply.indexOf(" "));
+      newCores = reply.substring(nNodes.length()+1, reply.length()-1);
+      totalNcores = String.valueOf(Integer.valueOf(newCores) * Integer.valueOf(newNodes));
     }
 
-
-    String totalNcores = String.valueOf(Integer.valueOf(nCores) * Integer.valueOf(nNodes));
     try {
       Connection connection = readDataBase(
         readWsConfig("AppsPropDB_dbName"),
@@ -107,7 +111,7 @@ public class Ws extends Utilities {
       //ResultSet lookup_total_time = lookupLundstromStageRemainingTime(connection, dbName, appId, totalNcores, "0", datasetSize);
       ResultSet lookup_total_time = lookupLundstromStageRemainingTime(connection, dbName, appId, totalNcores, "0", ramGB);
       if (lookup_total_time == null || !lookup_total_time.next()) {
-        msg = Start(lundstromPath, BuildLUA(resultsPath, nNodes, nCores, ramGB, datasetSize, appId), connection, dbName, appId, totalNcores, datasetSize);
+        msg = Start(lundstromPath, BuildLUA(resultsPath, newNodes, newCores, ramGB, datasetSize, appId, coresToPredict), connection, dbName, appId, totalNcores, datasetSize);
       }
       else {
         msg = String.valueOf((long)(lookup_total_time.getDouble("val")));
@@ -162,6 +166,7 @@ public class Ws extends Utilities {
     String newNodes = reply.substring(0, reply.indexOf(" "));
     String newCores = reply.substring(newNodes.length()+1, reply.length());
     String totalNewNcores = String.valueOf(Integer.valueOf(newCores) * Integer.valueOf(newNodes));
+
     try {
       Connection connection = readDataBase(
         readWsConfig("AppsPropDB_dbName"),
@@ -171,7 +176,7 @@ public class Ws extends Utilities {
       );
       connection.setAutoCommit(false);
       String dbName = readWsConfig("AppsPropDB_dbName");
-      msg = Start(lundstromPath, BuildLUA(resultsPath, newNodes, newCores, ramGB, datasetSize, appId), connection, dbName, appId, totalNewNcores, datasetSize);
+      msg = Start(lundstromPath, BuildLUA(resultsPath, newNodes, newCores, ramGB, datasetSize, appId, nNodesnCores), connection, dbName, appId, totalNewNcores, datasetSize);
     }
     catch (Exception e) {
       e.printStackTrace();
@@ -279,13 +284,14 @@ public class Ws extends Utilities {
         // Could not find results folder
         return Response.status(500).build();
       }
-      nNodes = nNodesnCores.substring(0, nNodesnCores.indexOf(" "));
-      nCores = nNodesnCores.substring(nNodes.length()+1, nNodesnCores.length()-1);
+      String newNodes = nNodesnCores.substring(0, nNodesnCores.indexOf(" "));
+      String newCores = nNodesnCores.substring(nNodes.length()+1, nNodesnCores.length()-1);
 
       // Check lookup table
       long remainingTime, stage_end_time;
 
-      String totalNcores = String.valueOf(Integer.valueOf(nCores) * Integer.valueOf(nNodes));
+      String totalNcores = String.valueOf(Integer.valueOf(newCores) * Integer.valueOf(newNodes));
+      String coresToPredict = String.valueOf(Integer.valueOf(nCores) * Integer.valueOf(nNodes));
       ResultSet lookup_remaining_time = lookupLundstromStageRemainingTime(connection, dbName, appId, totalNcores, stage, datasetSize);
       ResultSet lookup_stage_end_time = lookupLundstromStageEndTime(connection, dbName, appId, totalNcores, stage, datasetSize);
 
@@ -293,7 +299,7 @@ public class Ws extends Utilities {
       if (lookup_remaining_time == null || !lookup_remaining_time.next() || lookup_stage_end_time == null || !lookup_stage_end_time.next())
       {
         // No previous run available, start lundstrom
-        String lundstromOutput = StartLundstromStages(lundstromPath, BuildLUA(resultsPath, nNodes, nCores, ramGB, datasetSize, appId), connection, dbName, appId, totalNcores, datasetSize);
+        String lundstromOutput = StartLundstromStages(lundstromPath, BuildLUA(resultsPath, newNodes, newCores, ramGB, datasetSize, appId, coresToPredict), connection, dbName, appId, totalNcores, datasetSize);
 
         String[] stages = getAllStages(lundstromOutput);
         boolean found = false;
@@ -448,7 +454,8 @@ public class Ws extends Utilities {
       String newNodes = reply.substring(0, reply.indexOf(" "));
       String newCores = reply.substring(newNodes.length()+1, reply.length());
 
-      String luaPath = BuildLUAWithoutMethod(resultsPath, newNodes, newCores, datasetSize, appId);
+      // String coresToPredict = String.valueOf(Integer.valueOf(newCores) * Integer.valueOf(newNodes));
+      String luaPath = BuildLUAWithoutMethod(resultsPath, newNodes, newCores, datasetSize, appId, nCoresRunning);
       String totalNewNcores = String.valueOf(Integer.valueOf(newNodes) * Integer.valueOf(newCores));
 
       String lundstromOutput = StartLundstromStages(lundstromPath, luaPath, connection, dbName, appId, totalNewNcores, datasetSize);

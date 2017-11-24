@@ -498,10 +498,10 @@ public class Utilities {
    }
 
    // BuildLUA(resultsPath, newNodes, newCores, ramGB, datasetSize, appId)
-   public String BuildLUA(String resultsPath, String newNodes, String newCores, String ramGB, String datasetSize, String appId)
+   public String BuildLUA(String resultsPath, String newNodes, String newCores, String ramGB, String datasetSize, String appId, String coresToPredict)
    {
       String path = resultsPath.concat("/%NODES_%CORES_%RAM_%DATA/%QUERY/logs/");
-      return " -n "+ newNodes + " -c "+ newCores + " -r " + ramGB + " -d " + datasetSize + " -q " + appId + " -p spark -l " + path + " -s ";
+      return " -n "+ newNodes + " -c "+ newCores + " -r " + ramGB + " -d " + datasetSize + " -q " + appId + " -p spark -l " + path + " -k " + coresToPredict +  " -s ";
    }
   //  public String BuildLUA(String resultsPath, String newNodes, String newCores, String ramGB, String datasetSize, String appId)
   //  {
@@ -512,7 +512,7 @@ public class Utilities {
   //     return(luaFileName);
   //  }
 
-   public String BuildLUAWithoutMethod(String resultsPath, final String nNodes, final String nCores, final String datasetSize, String appId) {
+   public String BuildLUAWithoutMethod(String resultsPath, final String nNodes, final String nCores, final String datasetSize, String appId, String coresToPredict) {
       // List all files in results path directory
       File [] directories = new File(resultsPath).listFiles(new FileFilter() {
          @Override
@@ -524,7 +524,7 @@ public class Utilities {
       if (directories.length > 0) {
         String ramGB = directories[0].getPath().replace(nNodes+"_"+nCores+"_", "").replace("_"+datasetSize, "");
         String path = resultsPath.concat("/%NODES_%CORES_%RAM_%DATA/%QUERY/logs/");
-        return " -n "+ nNodes + " -c "+ nCores + " -r " + ramGB + " -d " + datasetSize + " -q " + appId + " -p spark -l "+path+" -s";
+        return " -n "+ nNodes + " -c "+ nCores + " -r " + ramGB + " -d " + datasetSize + " -q " + appId + " -p spark -l " + path + " -k " + coresToPredict + " -s";
         //  String path = directories[0].getPath().concat("/").concat(query).concat("/logs/");
         //  String luaFileName = getFirstFile(getFirstFolder(path));
         //  return luaFileName;
