@@ -832,7 +832,7 @@ public class Utilities {
      {
        JSONParser parser = new JSONParser();
        JSONObject json = (JSONObject) parser.parse(lundstromOutput);
-       String d = (String)json.get("real");
+       String d = (String)json.get("predicted");
        return (long)Math.floor(Double.parseDouble(d));
      }
      catch (ParseException pe)
